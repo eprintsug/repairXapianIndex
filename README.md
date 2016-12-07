@@ -1,5 +1,5 @@
 # repairXapianIndex
-Sometimes / somehow eprints' simple search database (Xapian) gets corrupted. Tools &amp; HowTo fix it.
+Sometimes / somehow eprints' simple search database (Xapian) gets corrupted. Here you'll find tools and a short description howto fix it.
 
 ## Necessary if ...
 - Repos "simple search" does not provide satisfactory results or system errors (Error 500, Service not available), or certain abstracts (and probably also the other metadata) are no longer indexed, even though they actually exist.
@@ -8,13 +8,14 @@ Sometimes / somehow eprints' simple search database (Xapian) gets corrupted. Too
 - A tool called xapian-check is warning about corrupted databases.
 
 ## What you need
-- A tool called xapian-check, which is part of xapian-core (https://xapian.org/download)
+- xapian-check, which is part of xapian-core (https://xapian.org/download)
 
-## How-To
+## Overview
 
-* First of all you should do a Xapian backup AND check once, twice, ... a day via cronjob on the DB servers.
-* Therefor use the backup script (bin/custom/xapiandump.sh). It starts a xapian-check and generates a gziped-tarball, if check is ok. Otherwise xapian-check tells you "corrupted database" and your last tarball is your life vest.
-* If database is corrupt, you must decide, weather you want to make a full reindex, or a partial reindex based on the tarball.
+* First of all you should do a Xapian *backup* AND *check* once, twice, ... a day via cronjob on the DB servers.
+* Therefor use the backup script (bin/custom/xapiandump.sh). It does a xapian-check and generates a gziped-tarball, if check is ok. Otherwise xapian-check tells you "corrupted database" and your last tarball is your life vest.
+* If database is corrupt or any of the other points in "Necessary if..." is true, go ahead on "Restore the Xapian database"
+* You must restore and decide, weather you want to make a full reindex, or a partial reindex - both based on the tarball.
 
 ## Examin
 
@@ -40,8 +41,9 @@ Double check the consistency of the backup for security reasons:
 /_path_to_bin_/xapian-check /_backup_dir_/xapian/
 ````
 
-Note: If the backup is ok, it can be restored followed by a partial reindex.
-Note: If the backup is NOT ok, you have to do a full reindex.
+Decide now
+- If the backup is ok, it can be restored followed by a partial reindex.
+- If the backup is NOT ok, you have to do a full reindex.
 
 ## Full Reindex
 
