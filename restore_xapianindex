@@ -1,0 +1,189 @@
+#!/usr/bin/perl -w -I/usr/local/eprints/perl_lib
+
+###############################################################################
+#
+# Restore Xapian index
+#
+# This script reindexes all missing eprints after a Xapian database has been 
+# restored from backup.
+#
+###############################################################################
+#
+#  Copyright 2016 University of Zurich. All Rights Reserved.
+#
+#  Martin Brändle
+#  Zentrale Informatik
+#  Universität Zürich
+#  Stampfenbachstr. 73
+#  CH-8006 Zürich
+#  
+#  The plug-ins are free software; you can redistribute them and/or modify
+#  them under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  The plug-ins are distributed in the hope that they will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with EPrints 3; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+######################################################################
+
+
+=pod
+
+=head1 NAME
+
+B<restore_xapianindex> - Reindexes all missing eprints after a Xapian database 
+has been restored from backup.
+
+=head1 SYNOPSIS
+
+B<restore_xapianindex> I<repo> [B<options>]
+
+=head1 DESCRIPTION
+
+This command identifies all eprints which have not been indexed in Xapian, e.g.
+after an intact Xapian database has been restored from backup, and submits those
+to indexing.
+
+=head1 ARGUMENTS
+
+=over 8
+
+=item I<repo>
+
+The id of the repository.
+
+=back
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Print a brief help message and exit.
+
+=item B<--man>
+
+Print the full manual page and then exit.
+
+=item B<--quiet>
+
+Be vewwy vewwy quiet. This option will supress all output unless an error occurs.
+
+=item B<--verbose>
+
+Explain in detail what is going on. May be repeated for greater effect.
+
+=back
+
+=cut
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Pod::Usage;
+
+use EPrints;
+use Search::Xapian;
+
+#
+# Parameters for command line options
+#
+my $help = 0;
+my $man = 0;
+my $verbose = 0;
+my $quiet = 0;
+
+
+#
+# Parse the command line options
+#
+Getopt::Long::Configure("permute");
+GetOptions( 
+	'help|?' => \$help,
+	'man' => \$man,
+	'verbose+' => \$verbose,
+	'quiet' => \$quiet,
+) || pod2usage( 2 );
+
+
+#
+# Print out help screens, if desired
+#
+pod2usage( 1 ) if $help;
+pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
+pod2usage( 2 ) if( scalar @ARGV < 1 );
+
+#
+# Configure verbosity
+#
+my $noise = 1;
+$noise = 0 if( $quiet );
+$noise = 1 + $verbose if( $verbose );
+
+my $repoid = $ARGV[0];
+
+my $session = new EPrints::Session( 1 , $repoid , $noise );
+if( !defined $session )
+{
+	print STDERR "Failed to load repository: $repoid\n";
+	exit 1;
+}
+
+my $param;
+my $list;
+
+my $dataset = $session->get_repository->get_dataset( "archive" );
+
+$list = $dataset->search;
+my $count = $list->count();
+
+print STDOUT "Processing $count eprints\n" if $verbose;
+
+my $path = $session->config( "variables_path" ) . "/xapian";
+my $xapian = Search::Xapian::Database->new( $path );
+
+$param->{xapian} = $xapian;
+$param->{verbose} = $verbose;
+
+$list->map( \&process_records, $param );
+
+$session->terminate();
+exit;
+
+
+sub process_records
+{
+	my ($session, $dataset, $eprint, $param) = @_;
+	
+	my $eprintid = $eprint->get_value( "eprintid" );
+
+	my $xapian = $param->{xapian};
+	my $verbose = $param->{verbose};
+	
+	$xapian->reopen();
+	my $doccount = $xapian->get_doccount;
+		
+	my $xapian_query = Search::Xapian::Query->new(
+		Search::Xapian::OP_AND(),
+		Search::Xapian::Query->new( 'eprintid:' . $eprintid )
+	);
+	
+	my $enq = $xapian->enquire( $xapian_query );
+	my @matches = $enq->matches(0, $doccount);
+	
+	if (scalar( @matches ) == 0)
+	{
+		print STDOUT "Reindexing eprint $eprintid\n" if $verbose;
+		my $indexer = $session->get_repository->plugin( "Event::Indexer" );
+		$indexer->index_all( $eprint );
+	}
+}
