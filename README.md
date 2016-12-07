@@ -24,6 +24,11 @@ Sometimes / somehow eprints' simple search database (Xapian) gets corrupted. Her
 ````
 
 Note: At UZH we're doing this twice a day via cronjob on the DB servers; it is part of the backup cronjob.
+````
+# cronjob - check and backup Xapian DB twice a day
+01 12 * * * /_path_to_eprints_home_/bin/custom/xapiandump.sh
+01 21 * * * /_path_to_eprints_home_/bin/custom/xapiandump.sh
+````
 
 ## Restore the Xapian database
 
