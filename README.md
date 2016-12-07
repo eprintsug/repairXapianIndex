@@ -15,7 +15,7 @@ Sometimes / somehow eprints' simple search database (Xapian) gets corrupted. Her
 * First of all you should do a Xapian *backup* AND *check* once, twice, ... a day via cronjob on the DB servers.
 * Therefor use the backup script (bin/custom/xapiandump.sh). It does a xapian-check and generates a gziped-tarball, if check is ok. Otherwise xapian-check tells you "corrupted database" and your last tarball is your life vest.
 * If database is corrupt or any of the other points in "Necessary if..." is true, go ahead on "Restore the Xapian database"
-* You must restore and decide, weather you want to make a full reindex, or a partial reindex - both based on the tarball.
+* You must decide, weather you want to make a full reindex, or do a restore and a partial reindex based on the tarball.
 
 ## Examin
 
