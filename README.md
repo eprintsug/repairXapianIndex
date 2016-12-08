@@ -3,9 +3,9 @@ Sometimes the EPrints Xapian database for quick search gets corrupted. Tools and
 
 ## Necessary if ...
 - the repo's "simple search" does not provide satisfactory results or system errors (Error 500, Service not available), or certain abstracts (and probably also the other metadata) are no longer indexed, even though they actually exist.
-- Newly entered eprints no longer appear in the search.
-- Messages from users telling you that the search for certain terms no longer works properly.
-- A tool called xapian-check is warning about corrupted databases.
+- newly entered eprints no longer appear in the search.
+- messages from users tell you that the search for certain terms no longer works properly.
+- a tool called xapian-check warns you about corrupted databases.
 
 ## What you need
 - xapian-check, which is part of xapian-core (https://xapian.org/download)
