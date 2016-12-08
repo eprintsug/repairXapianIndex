@@ -15,10 +15,10 @@ Sometimes the EPrints Xapian database for quick search gets corrupted. Tools and
 * First of all you should regularly do a *backup* of the Xapian database and also *check* once, twice, ... a day its integrity via cronjob on the DB servers.
 * For this we offer a backup script (bin/custom/xapiandump.sh) and a perl script to disable the Xapian database during backup (bin/custom/xapianopenclose). The backup script does a xapian-check and creates a gziped tarball, if the check is ok. Otherwise xapian-check tells you "corrupted database" and your last tarball is your life vest.
 * If the database is corrupt or any of the other points in "Necessary if..." is true, go ahead on "Restore the Xapian database"
-* You must decide, whether you want to make a full reindex, or do a restore and a partial reindex based on the tarball.
+* You must decide, whether you want to make a full reindex, or do a restore of the tarball and then a partial reindex that indexes the missing eprints that were added to the repo in the time between when the corruption happened and now. The partial indexing can be carried out with a separate perl script (bin/custom/restore_xapianindex).
 
 ## Examine the Xapian database
-
+ 
 ````
 /{path_to_bin}/xapian-check /{eprints_root}/archives/{repo}/var/xapian/
 ````
