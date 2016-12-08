@@ -40,7 +40,7 @@ gunzip {repo}-xapian-{hostname}.tar.gz
 tar -xvf {repo}-xapian-{hostname}.tar
 ````
 
-Double check the consistency of the backup for safety reasons:
+Check the consistency of the backup for safety reasons:
 
 ````
 /{path_to_bin}/xapian-check /{backup_dir}/xapian/
@@ -66,12 +66,12 @@ sudo -u {apache_process_user} /{eprints_root}/bin/custom/restore_xapianindex {re
 
 ## Full Reindex Run
 
-Previously delete all databases:
+First, delete all databases:
 ````
 rm /{eprints_root}/archives/{repo}/var/xapian/*
 ````
 
-Then start and reindex on the respective DB server:
+Then carry out the reindex on the respective DB server (we recommend to do this in a ````screen```` session):
 ````
 sudo -u {apache_process_user} /{eprints_root}/bin/epadmin reindex {repo} subject
 sudo -u {apache_process_user} /{eprints_root}/bin/epadmin reindex {repo} eprint
