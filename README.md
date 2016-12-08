@@ -1,5 +1,5 @@
 # repairXapianIndex
-Sometimes / somehow the EPrints Xapian database for quick search gets corrupted. Tools and a short description for fixing the corruption are offered here.
+Sometimes the EPrints Xapian database for quick search gets corrupted. Tools and a short description for fixing the corruption are offered here.
 
 ## Necessary if ...
 - the repo's "simple search" does not provide satisfactory results or system errors (Error 500, Service not available), or certain abstracts (and probably also the other metadata) are no longer indexed, even though they actually exist.
@@ -12,10 +12,10 @@ Sometimes / somehow the EPrints Xapian database for quick search gets corrupted.
 
 ## Overview
 
-* First of all you should regularly do a Xapian *backup* AND *check* once, twice, ... a day via cronjob on the DB servers.
+* First of all you should regularly do a *backup* of the Xapian database and also *check* once, twice, ... a day its integrity via cronjob on the DB servers.
 * For this we offer a backup script (bin/custom/xapiandump.sh) and a perl script to disable the Xapian database during backup (bin/custom/xapianopenclose). The backup script does a xapian-check and creates a gziped tarball, if the check is ok. Otherwise xapian-check tells you "corrupted database" and your last tarball is your life vest.
 * If the database is corrupt or any of the other points in "Necessary if..." is true, go ahead on "Restore the Xapian database"
-* You must decide, weather you want to make a full reindex, or do a restore and a partial reindex based on the tarball.
+* You must decide, whether you want to make a full reindex, or do a restore and a partial reindex based on the tarball.
 
 ## Examine the Xapian database
 
@@ -47,10 +47,10 @@ Double check the consistency of the backup for safety reasons:
 ````
 
 Decide now
-- If the backup is ok, it can be restored followed by a partial reindex.
-- If the backup is NOT ok, you have to do a full reindex.
+- If the backup is ok, it can be restored followed by a partial reindex run.
+- If the backup is NOT ok, you must carry out a full reindex run.
 
-## Partial Reindex
+## Partial Reindex Run
 
 - stop indexer and httpd processes
 - restore files from backup:
@@ -64,7 +64,7 @@ cp * /{eprints_root}/archives/{repo}/var/xapian/.
 sudo -u {apache_process_user} /{eprints_root}/bin/custom/restore_xapianindex {repo} --verbose
 ````
 
-## Full Reindex
+## Full Reindex Run
 
 Previously delete all databases:
 ````
@@ -77,5 +77,5 @@ sudo -u {apache_process_user} /{eprints_root}/bin/epadmin reindex {repo} subject
 sudo -u {apache_process_user} /{eprints_root}/bin/epadmin reindex {repo} eprint
 ````
 
-Note: A full reindex can take a very very long time! E.g. the runtime at zora.uzh.ch is about 8-10 days, processing approximately 12,000 eprints per day. The current number of eprints in your system can be viewed at https://_your_repo_/cgi/counter under "Archive".
+Note: A full reindex run can take a very very long time! E.g., the runtime at zora.uzh.ch is about 8-10 days, processing approximately 12,000 eprints per day. The current number of eprints in your system can be viewed at https://_your_repo_/cgi/counter under "Archive".
 
